@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Pothole Monitor</title>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    img { border: 2px solid black; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>🚨 Live Pothole Detection</h1>
+
+<p id="status">Waiting for data...</p>
+<p><b>Severity:</b> <span id="severity">-</span></p>
+<p><b>Time:</b> <span id="time">-</span></p>
+<p><b>Location:</b><span>GLA University, Mathura</span></p>
+<h2>Ultrasonic Sensor</h2>
+<p>Distance: <span id="dist">--</span> cm</p>
+
+<script>
+async function fetchUltrasonic() {
+  const res = await fetch("http://localhost:5000/api/ultrasonic");
+  const data = await res.json();
+  if (data.distance) {
+    document.getElementById("dist").innerText = data.distance;
+  }
+}
+setInterval(fetchUltrasonic, 1000);
+</script>
+
+
+<img id="image" width="320" />
+
+<script>
+async function fetchData() {
+  const res = await fetch("http://localhost:5000/api/pothole");
+  const data = await res.json();
+
+  if (!data.image) return;
+
+  document.getElementById("status").innerText = "LIVE";
+  document.getElementById("severity").innerText = data.severity;
+  document.getElementById("time").innerText = data.timestamp;
+  document.getElementById("image").src =
+    "data:image/jpeg;base64," + data.image;
+}
+
+setInterval(fetchData, 2000);
+</script>
+
+</body>
+</html>
